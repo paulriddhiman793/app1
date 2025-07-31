@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+requests
+PyMuPDF
+lancedb
+sentence-transformers
+groq
+dotenv
+git+https://github.com/brandonstarxel/chunking_evaluation.git
+
+torch
+easyocr
+pdfplumber
+PIL
