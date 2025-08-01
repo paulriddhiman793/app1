@@ -29,14 +29,14 @@ document.addEventListener("DOMContentLoaded", () => {
     resultDisplay.innerText = "⏳ Processing...";
 
     try {
-      const response = await fetch(`${BACKEND_URL}/hackrx/run`, {
+      const response = await fetch(`${BACKEND_URL}/api/v1/hackrx/run`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${AUTH_TOKEN}`
         },
         body: JSON.stringify({
-          url: url,
+          documents: url,
           questions: questions
         })
       });

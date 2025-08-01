@@ -58,7 +58,7 @@ async def ask_batch(questions: List[str], file_id: str):
     answers = batch_answer(questions, filename_filter=f"{file_id}.pdf")
     return answers
 
-@app.post("/hackrx/run")
+@app.post("/api/v1/hackrx/run")
 async def hackrx_run(
     request: Request,
     authorization: Optional[str] = Header(None)
@@ -68,7 +68,7 @@ async def hackrx_run(
         raise HTTPException(status_code=401, detail="Unauthorized")
 
     body = await request.json()
-    url = body.get("url")
+    url = body.get("documents")
     questions = body.get("questions")
 
     if not url or not questions:
@@ -98,4 +98,3 @@ async def hackrx_run(
         raise HTTPException(status_code=500, detail=f"LLM QA failed: {str(e)}")
 
     return {"answers": answers["answers"]}
-
