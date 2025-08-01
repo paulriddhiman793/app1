@@ -1,3 +1,5 @@
+const BACKEND_URL = "http://localhost:8000"; // Change this to your deployed backend URL if needed
+
 let uploadedFilename = "";
 
 // Upload PDF
@@ -12,13 +14,15 @@ uploadForm.addEventListener("submit", async (e) => {
   uploadStatus.innerText = "Uploading...";
 
   try {
-    const response = await fetch("/upload_pdf", {
+    const response = await fetch(`${BACKEND_URL}/upload/`, {
       method: "POST",
       body: formData,
     });
 
+    if (!response.ok) throw new Error("Upload failed");
+
     const data = await response.json();
-    uploadedFilename = data.filename;
+    uploadedFilename = data.file_id;
     uploadStatus.innerHTML = `✅ Uploaded <strong>${uploadedFilename}</strong> successfully.`;
     qaSection.style.display = "block";
   } catch (err) {
@@ -37,19 +41,24 @@ async function askQuestion() {
   answerDisplay.innerHTML = "⏳ Getting answer...";
 
   try {
-    const response = await fetch("/ask_question", {
+    const formData = new URLSearchParams();
+    formData.append("question", question);
+    formData.append("file_id", uploadedFilename);
+
+    const response = await fetch(`${BACKEND_URL}/ask/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        question: question,
-        filename_filter: uploadedFilename,
-      }),
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: formData.toString(),
     });
+
+    if (!response.ok) throw new Error("Request failed");
 
     const data = await response.json();
     answerDisplay.innerText = data.answer || "No answer found.";
   } catch (err) {
-    answerDisplay.innerText = "Error getting answer.";
+    answerDisplay.innerText = "❌ Error getting answer.";
     console.error(err);
   }
 }

@@ -34,3 +34,20 @@ async def ask_question(question: str = Form(...), file_id: str = Form(...)):
 async def ask_batch(questions: List[str], file_id: str):
     answers = batch_answer(questions, filename_filter=f"{file_id}.pdf")
     return answers
+
+
+
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from fastapi import Request
+
+# Serve static files (JS, CSS, etc.)
+app.mount("/static", StaticFiles(directory="frontend"), name="static")
+
+# Render the HTML page
+templates = Jinja2Templates(directory="frontend")
+
+@app.get("/", response_class=HTMLResponse)
+async def serve_home(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
