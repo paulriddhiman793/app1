@@ -1,64 +1,66 @@
-const BACKEND_URL = "http://localhost:8000"; // Change this to your deployed backend URL if needed
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("✅ script.js loaded"); // confirms fresh version is used
 
-let uploadedFilename = "";
+  const BACKEND_URL =
+    window.location.hostname === "localhost"
+      ? "http://localhost:8000"
+      : window.location.origin;
 
-// Upload PDF
-const uploadForm = document.getElementById("uploadForm");
-const uploadStatus = document.getElementById("uploadStatus");
-const qaSection = document.getElementById("qaSection");
+  const AUTH_TOKEN = "HACKRX_DEMO_KEY"; // Match this to .env
 
-uploadForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const formData = new FormData(uploadForm);
+  const runForm = document.getElementById("runForm");
+  const urlInput = document.getElementById("urlInput");
+  const questionsInput = document.getElementById("questionsInput");
+  const resultDisplay = document.getElementById("resultDisplay");
 
-  uploadStatus.innerText = "Uploading...";
+  runForm.addEventListener("submit", async (e) => {
+    e.preventDefault(); // prevent page reload
 
-  try {
-    const response = await fetch(`${BACKEND_URL}/upload/`, {
-      method: "POST",
-      body: formData,
-    });
+    const url = urlInput.value.trim();
+    const rawQuestions = questionsInput.value.trim();
 
-    if (!response.ok) throw new Error("Upload failed");
+    if (!url || !rawQuestions) {
+      resultDisplay.innerText = "❗ Please enter both document URL and questions.";
+      return;
+    }
 
-    const data = await response.json();
-    uploadedFilename = data.file_id;
-    uploadStatus.innerHTML = `✅ Uploaded <strong>${uploadedFilename}</strong> successfully.`;
-    qaSection.style.display = "block";
-  } catch (err) {
-    uploadStatus.innerText = "❌ Upload failed.";
-    console.error(err);
-  }
+    const questions = rawQuestions.split("\n").filter(q => q.trim().length > 0);
+
+    resultDisplay.innerText = "⏳ Processing...";
+
+    try {
+      const response = await fetch(`${BACKEND_URL}/hackrx/run`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${AUTH_TOKEN}`
+        },
+        body: JSON.stringify({
+          url: url,
+          questions: questions
+        })
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.detail || "Request failed");
+      }
+
+      const data = await response.json();
+      const answers = data.answers;
+
+      resultDisplay.innerHTML = answers
+        .map((ans, i) => `
+          <p>
+            <strong>Q${i + 1}:</strong> ${questions[i]}<br/>
+            <strong>Answer:</strong> ${ans}
+          </p>
+        `)
+        .join("<hr/>");
+
+    } catch (err) {
+      resultDisplay.innerText = "❌ Error: " + err.message;
+      console.error(err);
+    }
+  });
 });
-
-// Ask Question
-async function askQuestion() {
-  const question = document.getElementById("questionInput").value.trim();
-  const answerDisplay = document.getElementById("answerDisplay");
-
-  if (!question) return;
-
-  answerDisplay.innerHTML = "⏳ Getting answer...";
-
-  try {
-    const formData = new URLSearchParams();
-    formData.append("question", question);
-    formData.append("file_id", uploadedFilename);
-
-    const response = await fetch(`${BACKEND_URL}/ask/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: formData.toString(),
-    });
-
-    if (!response.ok) throw new Error("Request failed");
-
-    const data = await response.json();
-    answerDisplay.innerText = data.answer || "No answer found.";
-  } catch (err) {
-    answerDisplay.innerText = "❌ Error getting answer.";
-    console.error(err);
-  }
-}

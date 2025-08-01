@@ -2,29 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Document QA System</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="/static/style.css?v=1.0.4" />
 </head>
 <body>
   <div class="container">
-    <h1>📄 PDF Question Answering</h1>
+    <h1>📄 Document Question Answering</h1>
 
-    <form id="uploadForm">
-      <label for="pdfFile">Upload PDF:</label>
-      <input type="file" id="pdfFile" name="pdfFile" accept="application/pdf" required />
-      <button type="submit">Upload</button>
+    <form id="runForm">
+      <label for="urlInput">Document URL:</label>
+      <input type="text" id="urlInput" placeholder="Enter public PDF URL" required />
+
+      <label for="questionsInput">Questions (one per line):</label>
+      <textarea id="questionsInput" rows="6" placeholder="Write each question on a new line..." required></textarea>
+
+      <button type="submit">Submit</button>
     </form>
 
-    <div id="uploadStatus"></div>
-
-    <div id="qaSection" style="display: none">
-      <textarea id="questionInput" placeholder="Ask your question here..."></textarea>
-      <button onclick="askQuestion()">Get Answer</button>
-
-      <div id="answerDisplay"></div>
-    </div>
+    <div id="resultDisplay"></div>
   </div>
-  <script src="script.js"></script>
+
+  <script src="/static/script.js?v=1.0.4" defer></script>
+  <noscript><p style="color:red;">JavaScript is required to run this application.</p></noscript>
 </body>
 </html>

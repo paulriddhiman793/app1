@@ -1,17 +1,17 @@
 # app/ingest.py
 
 import os
-from typing import List
+from typing import List, Optional
 from chunking_evaluation.chunking import ClusterSemanticChunker
 from chunking_evaluation.utils import openai_token_count
 from lancedb.embeddings import get_registry
 import lancedb
 import torch
 
-# Connect to LanceDB
+# LanceDB connection
 db = lancedb.connect("data1/lancedb")
 
-# Embedding model
+# Embedding model setup
 embedding_func_obj = (
     get_registry()
     .get("sentence-transformers")
@@ -26,9 +26,8 @@ embedding_func_obj = (
 def callable_embedding_func(texts: List[str]) -> List[List[float]]:
     return embedding_func_obj.generate_embeddings(texts)
 
-# Define schema
+# LanceDB schema
 from lancedb.pydantic import LanceModel, Vector
-from typing import Optional
 
 class ChunkMetadata(LanceModel):
     filename: Optional[str]
@@ -40,15 +39,19 @@ class Chunks(LanceModel):
     vector: Vector(embedding_func_obj.ndims()) = embedding_func_obj.VectorField()  # type: ignore
     metadata: ChunkMetadata
 
-# Initialize table (create once, overwrite for now)
+# Create or overwrite table
 table = db.create_table("docling", schema=Chunks, mode="overwrite")
 
+# Main processor
 def process_txt_file(txt_path: str, filename: str):
-    # Read the full document
+    # Read text file content
     with open(txt_path, "r", encoding="utf-8") as f:
-        document = f.read()
+        document = f.read().strip()
 
-    # Chunk using your semantic chunker
+    if not document:
+        raise ValueError("❌ Extracted document text is empty. Cannot proceed.")
+
+    # Chunking
     cluster_chunker = ClusterSemanticChunker(
         embedding_function=callable_embedding_func,
         max_chunk_size=400,
@@ -56,13 +59,16 @@ def process_txt_file(txt_path: str, filename: str):
     )
     chunk_texts = cluster_chunker.split_text(document)
 
-    # Wrap into LanceDB format
+    if not chunk_texts:
+        raise ValueError("❌ No valid chunks generated from the document.")
+
+    # Wrap chunks into LanceDB format
     processed = [
         {
             "text": chunk_text,
             "metadata": {
                 "filename": filename,
-                "page_numbers": [],  # not inferable at this stage
+                "page_numbers": [],
                 "title": None
             }
         }

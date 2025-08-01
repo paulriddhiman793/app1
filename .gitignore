@@ -1,0 +1,21 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# Uploads and user-generated files
+app/uploads/
+
+# LanceDB local data
+data1/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+.env
