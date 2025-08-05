@@ -2,8 +2,8 @@
 
 import os
 from typing import List, Optional
-from chunking_evaluation1.chunking import ClusterSemanticChunker
-from chunking_evaluation1.utils import openai_token_count
+from chunking_evaluation.chunking import ClusterSemanticChunker
+from chunking_evaluation.utils import openai_token_count
 from lancedb.embeddings import get_registry
 import lancedb
 import torch
