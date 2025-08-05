@@ -14,4 +14,3 @@ pillow
 gunicorn
 attrs
 fuzzywuzzy
-chromadb
