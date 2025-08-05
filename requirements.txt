@@ -12,3 +12,4 @@ easyocr
 pdfplumber
 pillow
 gunicorn
+attrs
