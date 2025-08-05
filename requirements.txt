@@ -13,3 +13,4 @@ pdfplumber
 pillow
 gunicorn
 attrs
+fuzzywuzzy
