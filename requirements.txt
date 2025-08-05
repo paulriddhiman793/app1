@@ -15,3 +15,4 @@ gunicorn
 attrs
 fuzzywuzzy
 tiktoken
+git+https://github.com/brandonstarxel/chunking_evaluation
