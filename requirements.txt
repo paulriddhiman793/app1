@@ -11,4 +11,6 @@ torch
 easyocr
 pdfplumber
 pillow
-git+https://github.com/brandonstarxel/chunking_evaluation.git
+gunicorn
+attrs
+fuzzywuzzy
